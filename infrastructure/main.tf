@@ -78,43 +78,21 @@ resource "local_file" "tf_Jenkinsfile" {
                                 steps{
                                         sh '''
                                                 image="${module.ec2.jenk_ip}:5000/frontend:build-$BUILD_NUMBER"
-                                                docker build -t $image /var/lib/jenkins/workspace/DnD_master/frontend
+                                                docker build -t $image /var/lib/jenkins/workspace/$JOB_BASE_NAME/frontend
                                                 docker push $image
                                                 ssh ${module.ec2.prod_ip} -oStrictHostKeyChecking=no  << EOF
-                                                docker service update --image $image DnDCharacterGen_frontend
+                                                docker service update --image $image project_frontend
                                         '''
                                 }
                         }  
-                        stage('--Service1--'){
-                                steps{
-                                        sh '''
-                                                image="${module.ec2.jenk_ip}:5000/rand1:build-$BUILD_NUMBER"
-                                                docker build -t $image /var/lib/jenkins/workspace/DnD_master/randapp1
-                                                docker push $image
-                                                ssh ${module.ec2.prod_ip} -oStrictHostKeyChecking=no  << EOF
-                                                docker service update --image $image DnDCharacterGen_service1
-                                        '''
-                                }
-                        }
-                        stage('--Service2--'){
-                                steps{
-                                        sh '''
-                                                image="${module.ec2.jenk_ip}:5000/rand2:build-$BUILD_NUMBER"
-                                                docker build -t $image /var/lib/jenkins/workspace/DnD_master/randapp2
-                                                docker push $image
-                                                ssh ${module.ec2.prod_ip} -oStrictHostKeyChecking=no  << EOF
-                                                docker service update --image $image DnDCharacterGen_service2
-                                        '''
-                                }
-                        }
                         stage('--Back End--'){
                                 steps{
                                         sh '''
-                                                image="${module.ec2.jenk_ip}:5000/backend:build-$BUILD_NUMBER"
-                                                docker build -t $image /var/lib/jenkins/workspace/DnD_master/backend
+                                                image="${module.ec2.jenk_ip}:5000/rand1:build-$BUILD_NUMBER"
+                                                docker build -t $image /var/lib/jenkins/workspace/$JOB_BASE_NAME/backend
                                                 docker push $image
                                                 ssh ${module.ec2.prod_ip} -oStrictHostKeyChecking=no  << EOF
-                                                docker service update --image $image DnDCharacterGen_backend
+                                                docker service update --image $image project_backend
                                         '''
                                 }
                         }
@@ -153,8 +131,8 @@ services:
       image: jenkins:5000/frontend:build-0
       build: ./frontend
       ports:
-        - target: 5000
-          published: 5000
+        - target: 8080
+          published:8080
       environment:
         - MYSQL_USER=root
         - MYSQL_PWD=$${DB_PWD}
@@ -162,9 +140,9 @@ services:
         - MYSQL_DB=DnD
         - MYSQL_SK=sgjbsloiyblvbda
     
-    service1:
-      image: jenkins:5000/rand1:build-0
-      build: ./randapp1
+    backend:
+      image: jenkins:5000/backend:build-0
+      build: ./backend
       ports:
         - target: 5001
           published: 5001
