@@ -57,20 +57,11 @@ resource "aws_network_interface" "web-server-nic-3" {
 }
 
 resource "aws_nat_gateway" "NAT_GATEWAY" {
-  depends_on = [
-    aws_eip.Nat-Gateway-EIP
-  ]
-
-  allocation_id = aws_eip.Nat-Gateway-EIP.id
-  
+  connectivity_type = "private"
   subnet_id = aws_subnet.subnet-1.id
   tags = {
     Name = "Nat-Gateway_DB"
   }
-}
-resource "aws_eip" "Nat-Gateway-EIP" {
-  vpc                       = true
-  depends_on                = [var.internet_gate]
 }
 
 resource "aws_route_table" "NAT-Gateway-RT" {

@@ -28,6 +28,7 @@ module "ec2" {
     sec_group_id    = module.vpc.db_sec_group_id
     subnet_group_name = module.subnets.db_subnet_group
     db_password     = var.db_password
+    db_name         = var.db_name
 }
 
 resource "local_file" "tf_ansible_inventory" {
@@ -74,7 +75,14 @@ resource "local_file" "tf_Jenkinsfile" {
     pipeline{
                 agent any
                 stages{
-                        stage('--Front End--'){
+                        stage('--Build Back End Jar--'){
+                                steps{
+                                        sh '''
+                                                cd /var/lib/jenkins/workspace/$JOB_BASE_NAME/backend $$ mvn clean install
+                                        '''
+                                }
+                        }
+                        stage('--Front End Deploy--'){
                                 steps{
                                         sh '''
                                                 image="${module.ec2.jenk_ip}:5000/frontend:build-$BUILD_NUMBER"
@@ -85,7 +93,7 @@ resource "local_file" "tf_Jenkinsfile" {
                                         '''
                                 }
                         }  
-                        stage('--Back End--'){
+                        stage('--Back End Deploy--'){
                                 steps{
                                         sh '''
                                                 image="${module.ec2.jenk_ip}:5000/rand1:build-$BUILD_NUMBER"
@@ -133,12 +141,6 @@ services:
       ports:
         - target: 8080
           published:8080
-      environment:
-        - MYSQL_USER=root
-        - MYSQL_PWD=$${DB_PWD}
-        - MYSQL_IP=${module.subnets.NAT_publicIP}
-        - MYSQL_DB=DnD
-        - MYSQL_SK=sgjbsloiyblvbda
     
     backend:
       image: jenkins:5000/backend:build-0
@@ -146,6 +148,12 @@ services:
       ports:
         - target: 5001
           published: 5001
+      environment:
+        - MYSQL_USER=root
+        - MYSQL_PWD=$${DB_PWD}
+        - MYSQL_IP=${module.ec2.db_address}
+        - MYSQL_DB=${var.db_name}
+        - MYSQL_SK=sgjbsloiyblvbda
     DOC
   filename = "../docker-compose.yaml"
 }

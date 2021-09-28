@@ -7,3 +7,6 @@ output "test_ip" {
 output "jenk_ip" {
   value = aws_instance.jenkins.public_ip
 }
+output "db_address" {
+  value = aws_db_instance.production.address
+}

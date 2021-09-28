@@ -67,11 +67,11 @@ resource "aws_instance" "bastion" {
   }
 }
 
-resource "aws_db_instance" "DnD" {
-  identifier             = "dnd"
-  name                   = "DnD"
+resource "aws_db_instance" "production" {
+  identifier             = "Prod"
+  name                   = var.db_name
   instance_class         = "db.t3.large"
-  allocated_storage      = 5
+  allocated_storage      = 20
   engine                 = "mysql"
   engine_version         = "5.7"
   username               = "root"

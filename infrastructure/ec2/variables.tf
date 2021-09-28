@@ -8,3 +8,4 @@ variable "key_name" {}
 variable "sec_group_id" {}
 variable "subnet_group_name" {}
 variable "db_password" {}
+variable "db_name" {}

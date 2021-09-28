@@ -13,3 +13,6 @@ variable "db_password" {
 variable "key_name" {
     value = "Terraform-Resource"
 }
+variable "db_name" {
+    value = "production_db"
+}

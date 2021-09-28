@@ -23,6 +23,8 @@
       - software-properties-common
       - python3-pip
       - git
+      - maven
+      - npm
       state: latest
       update_cache: true
   - name: docker
